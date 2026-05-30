@@ -5,12 +5,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```sh
-pnpm dev          # Start dev server at localhost:4321
-pnpm build        # Build production site to ./dist/
-pnpm preview      # Preview production build locally
-pnpm astro check  # Type-check .astro files (includes .astro)
-pnpm lint         # Biome lint (JS/TS/JSON/CSS)
-pnpm format       # Biome format (JS/TS/JSON/CSS)
+pnpm dev           # Start dev server at localhost:4321
+pnpm build         # Build production site to ./dist/
+pnpm preview       # Preview production build locally
+pnpm astro check   # Type-check .astro files
+pnpm lint          # Biome lint --write (JS/TS/JSON/CSS)
+pnpm format        # Biome format --write (JS/TS/JSON/CSS)
+pnpm check         # Biome check --write (lint + format combined)
+pnpm astro-upgrade # Upgrade Astro via @astrojs/upgrade
 ```
 
 ## Stack
@@ -28,15 +30,29 @@ pnpm format       # Biome format (JS/TS/JSON/CSS)
 - `src/assets/` — static assets processed by Vite (use `import` to reference)
 - `public/` — assets served as-is (favicon, etc.)
 
+## Package Security
+
+`.npmrc` enforces two project-wide constraints:
+
+- `ignore-scripts=true` — suppresses postinstall scripts globally (supply-chain safety)
+- `min-release-age=3` — blocks packages published fewer than 3 days ago
+
+`pnpm-workspace.yaml` handles the necessary exceptions:
+
+- `allowBuilds: [esbuild, sharp]` — grants build-script permission to these two packages that need it
+- `minimumReleaseAgeExclude` — exempts specific Astro packages (e.g. freshly released patch versions) from the age gate
+
+**When adding a new dependency:** if it fails to install due to these constraints, add it to `allowBuilds` (if it needs build scripts) or `minimumReleaseAgeExclude` (if it was just published) in `pnpm-workspace.yaml`.
+
 ## Code Quality (Biome)
 
-ESLint・Prettier は使わない。JS/TS/JSON/CSS は **Biome** で管理。`.astro` は Biome 対象外（`pnpm astro check` で型チェック）。
+No ESLint or Prettier. JS/TS/JSON/CSS is managed by **Biome**. `.astro` files are excluded from Biome — use `pnpm astro check` for type-checking them.
 
 ### Style Rules
 
-- シングルクォート、セミコロン省略 (`asNeeded`)、末尾カンマあり
-- JSX 属性はダブルクォート
-- 行幅 80 文字、インデント 2 スペース、LF 改行
+- Single quotes, semicolons `asNeeded`, trailing commas
+- JSX attributes use double quotes
+- 80-char line width, 2-space indent, LF line endings
 
 ```ts
 const example = {
@@ -49,7 +65,7 @@ const example = {
 <Component attr="value" />
 ```
 
-コード完成前に必ず `pnpm lint` と `pnpm format` を実行する。
+Always run `pnpm check` before finishing any code change.
 
 ## Tailwind v4
 
