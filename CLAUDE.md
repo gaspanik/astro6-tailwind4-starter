@@ -5,10 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```sh
-pnpm dev       # Start dev server at localhost:4321
-pnpm build     # Build production site to ./dist/
-pnpm preview   # Preview production build locally
-pnpm astro check  # Type-check .astro files
+pnpm dev          # Start dev server at localhost:4321
+pnpm build        # Build production site to ./dist/
+pnpm preview      # Preview production build locally
+pnpm astro check  # Type-check .astro files (includes .astro)
+pnpm lint         # Biome lint (JS/TS/JSON/CSS)
+pnpm format       # Biome format (JS/TS/JSON/CSS)
 ```
 
 ## Stack
@@ -25,6 +27,29 @@ pnpm astro check  # Type-check .astro files
 - `src/components/` — reusable `.astro` components
 - `src/assets/` — static assets processed by Vite (use `import` to reference)
 - `public/` — assets served as-is (favicon, etc.)
+
+## Code Quality (Biome)
+
+ESLint・Prettier は使わない。JS/TS/JSON/CSS は **Biome** で管理。`.astro` は Biome 対象外（`pnpm astro check` で型チェック）。
+
+### Style Rules
+
+- シングルクォート、セミコロン省略 (`asNeeded`)、末尾カンマあり
+- JSX 属性はダブルクォート
+- 行幅 80 文字、インデント 2 スペース、LF 改行
+
+```ts
+const example = {
+  name: 'value',
+  items: [1, 2, 3],
+}
+```
+
+```tsx
+<Component attr="value" />
+```
+
+コード完成前に必ず `pnpm lint` と `pnpm format` を実行する。
 
 ## Tailwind v4
 

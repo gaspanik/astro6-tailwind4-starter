@@ -1,5 +1,5 @@
 {
-  "name": "astro-tailwind4-starter",
+  "name": "astro6-tailwind4-starter",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -9,12 +9,21 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "astro-upgrade": "pnpm dlx @astrojs/upgrade",
+    "lint": "biome lint --write",
+    "format": "biome format --write",
+    "check": "biome check --write"
   },
   "dependencies": {
     "@lucide/astro": "^1.16.0",
     "@tailwindcss/vite": "^4.3.0",
     "astro": "^6.4.2",
     "tailwindcss": "^4.3.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@biomejs/biome": "2.4.15",
+    "typescript": "^6.0.3"
   }
 }
