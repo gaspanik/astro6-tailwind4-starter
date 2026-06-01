@@ -86,6 +86,10 @@ No `tailwind.config.js`. Customizations go in `src/styles/global.css` via `@them
 
 - `space-x-*` / `space-y-*` → use `gap-*` with flex/grid
 - `divide-*` → use borders on individual children
+- `shadow-sm` → `shadow-xs`
+- `bg-opacity-*` / `text-opacity-*` → use `bg-black/50` syntax
+- `flex-shrink` / `flex-grow` → `shrink` / `grow`
+- `overflow-ellipsis` → `text-ellipsis`
 
 ### Color Tokens
 

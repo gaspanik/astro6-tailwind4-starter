@@ -58,6 +58,10 @@ Add tokens to `src/styles/global.css` — never create a `tailwind.config.js`:
 
 - `space-x-*` / `space-y-*` → use `gap-*` with flex/grid
 - `divide-*` → use borders on individual children
+- `shadow-sm` → `shadow-xs`
+- `bg-opacity-*` / `text-opacity-*` → use `bg-black/50` syntax
+- `flex-shrink` / `flex-grow` → `shrink` / `grow`
+- `overflow-ellipsis` → `text-ellipsis`
 
 ### Color Tokens
 
