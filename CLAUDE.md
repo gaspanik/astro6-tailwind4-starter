@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Design Reference
+
+If `DESIGN.md` exists in the project root, read it before starting any UI or feature work. It contains the site's design intent, color palette, typography, layout guidelines, and component conventions — treat it as the source of truth for visual and UX decisions.
+
 ## Commands
 
 ```sh

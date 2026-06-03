@@ -17,6 +17,12 @@ A minimal, opinionated starter for building static sites and web apps with **Ast
 
 ```text
 /
+├── .github/
+│   ├── copilot-instructions.md  # GitHub Copilot guidelines
+│   └── prompts/                 # Reusable prompt templates (e.g. new-page)
+├── .vscode/
+│   ├── extensions.json          # Recommended extensions
+│   └── launch.json              # Debug configuration
 ├── public/
 │   ├── favicon.ico
 │   └── favicon.svg
@@ -28,6 +34,9 @@ A minimal, opinionated starter for building static sites and web apps with **Ast
 │   ├── pages/           # File-based routes (each .astro → a URL)
 │   └── styles/
 │       └── global.css   # @import "tailwindcss" + @theme tokens
+├── AGENTS.md            # AI agent guidelines (OpenAI Codex / generic)
+├── CLAUDE.md            # Claude Code guidelines
+├── GEMINI.md            # Gemini CLI guidelines
 ├── astro.config.mjs
 ├── biome.json
 └── package.json

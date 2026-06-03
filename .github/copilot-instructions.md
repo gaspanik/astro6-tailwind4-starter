@@ -1,6 +1,10 @@
 # Copilot Instructions
 
-This project is an **Astro 6 + Tailwind CSS v4** starter. Follow the conventions below when generating or editing code.
+This project is an **Astro 6 + Tailwind CSS v4** starter. Full conventions are in [CLAUDE.md](../CLAUDE.md) — read it before starting any work.
+
+## Design Reference
+
+If `DESIGN.md` exists in the project root, read it before starting any UI or feature work. It contains the site's design intent, color palette, typography, layout guidelines, and component conventions — treat it as the source of truth for visual and UX decisions.
 
 ## Stack
 
@@ -26,9 +30,11 @@ src/styles/global.css      # Tailwind entry — @theme tokens go here
 pnpm dev          # localhost:4321
 pnpm build        # Build to ./dist/
 pnpm preview      # Preview production build
-pnpm astro check  # Type-check .astro files
+pnpm astro check  # Type-check .astro files (separate from Biome)
 pnpm check        # Biome lint + format (run before finishing any change)
 ```
+
+> `.astro` files are excluded from Biome. Run both `pnpm astro check` and `pnpm check` before finishing.
 
 ## Code Style (Biome — no ESLint/Prettier)
 
@@ -50,9 +56,12 @@ Add tokens to `src/styles/global.css` — never create a `tailwind.config.js`:
 
 @theme {
   --color-brand: #6366f1;
-  --font-sans: "Inter", sans-serif;
+  --default-font-family: "YourFont", sans-serif;  /* body font */
+  --heading-font-family: "YourFont Display", sans-serif; /* headings */
 }
 ```
+
+**Font tokens**: Use `--default-font-family` (body) and `--heading-font-family` (headings, applied to `h1–h6` in `@layer base`). Load webfonts via `<link>` in `src/layouts/Layout.astro`'s `<head>`, not via `@import` in CSS.
 
 ### Breaking Changes from v3
 
