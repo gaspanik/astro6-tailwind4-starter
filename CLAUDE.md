@@ -19,6 +19,18 @@ pnpm check         # Biome check --write (lint + format combined)
 pnpm astro-upgrade # Upgrade Astro via @astrojs/upgrade
 ```
 
+### Astro Docs MCP (`mcp__AstroDocs__search_astro_docs`)
+
+Use this tool when working with Astro-specific APIs, integrations, or configuration. Prefer it over training-data knowledge for:
+
+- Astro component syntax, frontmatter, slots, `<slot />` usage
+- Integrations: `@astrojs/react`, `@astrojs/tailwind`, `@astrojs/image`, etc.
+- Content Collections, Actions, View Transitions, SSR/SSG config
+- `astro.config.mjs` options and Vite plugin setup
+- Any Astro 6 feature that may differ from earlier versions
+
+Always check the docs when the behavior is uncertain or the user hits an unexpected error.
+
 ## Stack
 
 - **Astro 6** — file-based routing under `src/pages/`, `.astro` components use frontmatter (`---`) for server-side logic

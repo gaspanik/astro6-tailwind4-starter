@@ -6,6 +6,20 @@ This project is an **Astro 6 + Tailwind CSS v4** starter. Full conventions are i
 
 If `DESIGN.md` exists in the project root, read it before starting any UI or feature work. It contains the site's design intent, color palette, typography, layout guidelines, and component conventions — treat it as the source of truth for visual and UX decisions.
 
+## MCP Tools
+
+### Astro Docs MCP (`mcp_astro_docs_se_search_astro_docs`)
+
+Use this tool when working with Astro-specific APIs, integrations, or configuration. Prefer it over training-data knowledge for:
+
+- Astro component syntax, frontmatter, slots, `<slot />` usage
+- Integrations: `@astrojs/react`, `@astrojs/tailwind`, `@astrojs/image`, etc.
+- Content Collections, Actions, View Transitions, SSR/SSG config
+- `astro.config.mjs` options and Vite plugin setup
+- Any Astro 6 feature that may differ from earlier versions
+
+Always check the docs when the behavior is uncertain or the user hits an unexpected error.
+
 ## Stack
 
 - **Astro 6** — file-based routing under `src/pages/`; `.astro` components use frontmatter (`---`) for server-side logic

@@ -6,6 +6,20 @@ If `DESIGN.md` exists in the project root, read it before starting any UI or fea
 
 This project is a modern, performance-oriented starter for building static sites and web applications using Astro 6 and Tailwind CSS v4.
 
+# MCP Tools
+
+### Astro Docs MCP (`mcp__AstroDocs__search_astro_docs`)
+
+Use this tool when working with Astro-specific APIs, integrations, or configuration. Prefer it over training-data knowledge for:
+
+- Astro component syntax, frontmatter, slots, `<slot />` usage
+- Integrations: `@astrojs/react`, `@astrojs/tailwind`, `@astrojs/image`, etc.
+- Content Collections, Actions, View Transitions, SSR/SSG config
+- `astro.config.mjs` options and Vite plugin setup
+- Any Astro 6 feature that may differ from earlier versions
+
+Always check the docs when the behavior is uncertain or the user hits an unexpected error.
+
 ## Project Overview
 
 - **Framework:** Astro 6 (Static Site Generator / Web Framework)
