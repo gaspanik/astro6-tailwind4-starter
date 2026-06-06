@@ -100,6 +100,8 @@ No `tailwind.config.js`. Customizations go in `src/styles/global.css` via `@them
 
 ### v4 Class Name Changes (Critical)
 
+**Do not use v3 class names.** Common mistakes:
+
 - `space-x-*` / `space-y-*` → use `gap-*` with flex/grid
 - `divide-*` → use borders on individual children
 - `shadow-sm` → `shadow-xs`
@@ -179,3 +181,8 @@ When 3+ sibling elements share repeated classes, consolidate onto the parent wit
 ```
 
 `*:` applies to direct children only.
+
+## Style Conventions
+
+- Indentation: 2 spaces, LF line endings (enforced by `.editorconfig`).
+- Use `uppercase` Tailwind class instead of writing text in ALL CAPS in HTML (accessibility: prevents screen readers from spelling out letters).
