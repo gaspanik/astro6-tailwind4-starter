@@ -107,6 +107,21 @@ No `tailwind.config.js`. Customizations go in `src/styles/global.css` via `@them
 - `flex-shrink` / `flex-grow` → `shrink` / `grow`
 - `overflow-ellipsis` → `text-ellipsis`
 
+### Font Family
+
+`--heading-font-family` is already applied to h1–h6 via `@layer base` in `src/style.css`.
+`--default-font-family` is set as the default body font via `@theme`.
+
+**Never write these classes:**
+- `font-[var(--heading-font-family)]`
+- `font-(--heading-font-family)`
+- `font-[var(--default-font-family)]`
+- `font-(--default-font-family)`
+
+They are redundant on heading elements and `<body>`.
+If you need the heading font on a non-heading element (e.g. a logo `<a>` or `<p>`),
+add the selector to `@layer base` or define a dedicated utility in `@theme` instead.
+
 ### Color Tokens
 
 Avoid raw Tailwind scale colors for project-specific palette. Define all project colors as `@theme` tokens:

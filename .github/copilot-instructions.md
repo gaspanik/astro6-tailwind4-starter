@@ -77,6 +77,14 @@ Add tokens to `src/styles/global.css` — never create a `tailwind.config.js`:
 
 **Font tokens**: Use `--default-font-family` (body) and `--heading-font-family` (headings, applied to `h1–h6` in `@layer base`). Load webfonts via `<link>` in `src/layouts/Layout.astro`'s `<head>`, not via `@import` in CSS.
 
+**Never write these classes:**
+- `font-[var(--heading-font-family)]`
+- `font-(--heading-font-family)`
+- `font-[var(--default-font-family)]`
+- `font-(--default-font-family)`
+
+They are redundant on heading elements and `<body>`. If you need the heading font on a non-heading element (e.g. a logo `<a>` or `<p>`), add the selector to `@layer base` or define a dedicated utility in `@theme` instead.
+
 ### Breaking Changes from v3
 
 - `space-x-*` / `space-y-*` → use `gap-*` with flex/grid

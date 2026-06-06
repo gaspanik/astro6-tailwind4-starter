@@ -63,6 +63,19 @@ Always check the docs when the behavior is uncertain or the user hits an unexpec
   - Use `bg-black/50` syntax instead of `bg-opacity-*`.
 - **Consolidation:** Use `*:` variants to apply classes to multiple siblings via the parent when applicable (e.g., `*:hover:text-white`).
 
+### Font Family
+`--heading-font-family` is already applied to h1–h6 via `@layer base` in `src/style.css`.
+`--default-font-family` is set as the default body font via `@theme`.
+**Never write these classes:**
+- `font-[var(--heading-font-family)]`
+- `font-(--heading-font-family)`
+- `font-[var(--default-font-family)]`
+- `font-(--default-font-family)`
+
+They are redundant on heading elements and `<body>`.
+If you need the heading font on a non-heading element (e.g. a logo `<a>` or `<p>`),
+add the selector to `@layer base` or define a dedicated utility in `@theme` instead.
+
 ### Code Style & Linting
 - **Biome:** Handles JS, TS, JSON, and CSS.
   - **Quotes:** Single quotes for JS/TS, double quotes for JSX/HTML attributes.
