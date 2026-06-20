@@ -46,15 +46,15 @@ A minimal, opinionated starter for building static sites and web apps with **Ast
 Replace `<pm>` with your package manager (`npm`, `yarn`, `pnpm`, etc.).
 
 ```sh
-<pm> install       # Install dependencies
-<pm> dev           # Start dev server at localhost:4321
-<pm> build         # Build production site to ./dist/
-<pm> preview       # Preview production build locally
-<pm> astro check   # Type-check .astro files
-<pm> lint          # Biome lint --write
-<pm> format        # Biome format --write
-<pm> check         # Biome check --write (lint + format combined)
-<pm> astro-upgrade # Upgrade Astro via @astrojs/upgrade
+<pm> install           # Install dependencies
+<pm> run dev           # Start dev server at localhost:4321
+<pm> run build         # Build production site to ./dist/
+<pm> run preview       # Preview production build locally
+<pm> run astro check   # Type-check .astro files
+<pm> run lint          # Biome lint --write
+<pm> run format        # Biome format --write
+<pm> run check         # Biome check --write (lint + format combined)
+<pm> run astro-upgrade # Upgrade Astro via @astrojs/upgrade
 ```
 
 ## Tailwind v4 Configuration
@@ -86,14 +86,14 @@ import { Camera } from '@lucide/astro'
 
 ## Code Style
 
-Biome handles lint and format for JS/TS/JSON/CSS. `.astro` files are excluded from Biome and checked via `<pm> astro check` instead.
+Biome handles lint and format for JS/TS/JSON/CSS. `.astro` files are excluded from Biome and checked via `<pm> run astro check` instead.
 
 Key style rules (see `biome.json` for full config):
 - Single quotes, semicolons `asNeeded`, trailing commas
 - JSX attributes use double quotes
 - 80-char line width, 2-space indent, LF line endings
 
-Always run `<pm> check` before committing.
+Always run `<pm> run check` before committing.
 
 ## Security
 
