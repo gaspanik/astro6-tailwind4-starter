@@ -28,5 +28,10 @@
   },
   "overrides": {
     "vite": "^7"
+  },
+  "allowScripts": {
+    "esbuild": true,
+    "sharp": true,
+    "fsevents": true
   }
 }
