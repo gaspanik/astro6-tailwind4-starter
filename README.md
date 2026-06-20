@@ -11,7 +11,6 @@ A minimal, opinionated starter for building static sites and web apps with **Ast
 | [@lucide/astro](https://lucide.dev) | ^1 | Tree-shakable SVG icons |
 | [Biome](https://biomejs.dev) | 2.x (pinned) | Lint + Format |
 | TypeScript | ^6 | Type safety (strict mode) |
-| pnpm | — | Package manager (node ≥ 22.12.0) |
 
 ## Project Structure
 
@@ -44,18 +43,18 @@ A minimal, opinionated starter for building static sites and web apps with **Ast
 
 ## Commands
 
-Run from the project root:
+Replace `<pm>` with your package manager (`npm`, `yarn`, `pnpm`, etc.).
 
 ```sh
-pnpm install       # Install dependencies
-pnpm dev           # Start dev server at localhost:4321
-pnpm build         # Build production site to ./dist/
-pnpm preview       # Preview production build locally
-pnpm astro check   # Type-check .astro files
-pnpm lint          # Biome lint --write
-pnpm format        # Biome format --write
-pnpm check         # Biome check --write (lint + format combined)
-pnpm astro-upgrade # Upgrade Astro via @astrojs/upgrade
+<pm> install       # Install dependencies
+<pm> dev           # Start dev server at localhost:4321
+<pm> build         # Build production site to ./dist/
+<pm> preview       # Preview production build locally
+<pm> astro check   # Type-check .astro files
+<pm> lint          # Biome lint --write
+<pm> format        # Biome format --write
+<pm> check         # Biome check --write (lint + format combined)
+<pm> astro-upgrade # Upgrade Astro via @astrojs/upgrade
 ```
 
 ## Tailwind v4 Configuration
@@ -87,14 +86,14 @@ import { Camera } from '@lucide/astro'
 
 ## Code Style
 
-Biome handles lint and format for JS/TS/JSON/CSS. `.astro` files are excluded from Biome and checked via `pnpm astro check` instead.
+Biome handles lint and format for JS/TS/JSON/CSS. `.astro` files are excluded from Biome and checked via `<pm> astro check` instead.
 
 Key style rules (see `biome.json` for full config):
 - Single quotes, semicolons `asNeeded`, trailing commas
 - JSX attributes use double quotes
 - 80-char line width, 2-space indent, LF line endings
 
-Always run `pnpm check` before committing.
+Always run `<pm> check` before committing.
 
 ## Security
 
@@ -102,4 +101,4 @@ Always run `pnpm check` before committing.
 - `ignore-scripts=true` — suppresses postinstall scripts globally
 - `min-release-age=3` — blocks packages published fewer than 3 days ago
 
-`pnpm-workspace.yaml` holds the necessary exceptions (`allowBuilds`, `minimumReleaseAgeExclude`).
+`pnpm-workspace.yaml` holds the necessary exceptions (`allowBuilds`).
