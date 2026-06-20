@@ -97,8 +97,4 @@ Always run `<pm> run check` before committing.
 
 ## Security
 
-`.npmrc` enforces supply-chain hygiene:
-- `ignore-scripts=true` — suppresses postinstall scripts globally
-- `min-release-age=3` — blocks packages published fewer than 3 days ago
-
-`pnpm-workspace.yaml` holds the necessary exceptions (`allowBuilds`).
+`pnpm-workspace.yaml` lists packages allowed to run build scripts (`allowBuilds`).
