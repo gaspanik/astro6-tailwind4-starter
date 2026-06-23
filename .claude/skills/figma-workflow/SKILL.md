@@ -1,14 +1,14 @@
 ---
 name: figma-workflow
 description: >-
-  Figma URL を受け取り、実装 → レビュー → 最適化 の3フェーズをサブエージェントで逐次実行するワークフロースキル（Astro向け）
+  Figma URL を受け取り、実装 → レビュー → 最適化 → Tailwindレビュー の4フェーズをサブエージェントで逐次実行するワークフロースキル（Astro向け）
 argument-hint: "<figma-url>"
 allowed-tools: Agent
 ---
 
 # Figma → Code ワークフロー（Astro）
 
-Figma URL を受け取り、**実装 → レビュー → 最適化** の3フェーズをサブエージェントで逐次実行するワークフロースキルです。
+Figma URL を受き取り、**実装 → レビュー → 最適化 → Tailwindレビュー** の4フェーズをサブエージェントで逐次実行するワークフロースキルです。
 
 ## 引数
 
@@ -22,7 +22,7 @@ Figma URL を受け取り、**実装 → レビュー → 最適化** の3フェ
 ## 実行ルール
 
 - 各フェーズは **Agent ツール**でサブエージェントとして起動する
-- 必ず **Phase 1 → Phase 2 → Phase 3** の順に実行する（並列不可）
+- 必ず **Phase 1 → Phase 2 → Phase 3 → Phase 4** の順に実行する（並列不可）
 - 各エージェントの完了を確認してから次を起動する
 - 全フェーズ完了後、各エージェントの報告内容をまとめてユーザーに提示する
 
@@ -211,9 +211,23 @@ Phase 2 完了後、Agent ツールで以下のプロンプトを渡してサブ
 
 ---
 
+## Phase 4: Tailwind CSS レビュー
+
+Phase 3 完了後、Agent ツールで以下のプロンプトを渡してサブエージェントを起動する。
+
+```
+プロジェクトのTailwind CSSコードをレビューし、最適化してください。
+
+`.claude/skills/tailwind-review/SKILL.md` を Read ツールで直接読み込み、記載の手順に従って実行してください。
+
+> **Note:** Skill ツールで `tailwind-review` を呼び出せない場合（CWD不一致など）は、`.claude/skills/tailwind-review/SKILL.md` を直接読んで手順に従うこと。
+```
+
+---
+
 ## 最終報告
 
-3フェーズすべて完了後、以下の形式でまとめて報告する：
+4フェーズすべて完了後、以下の形式でまとめて報告する：
 
 ```
 ## Figma ワークフロー完了
@@ -226,4 +240,7 @@ Phase 2 完了後、Agent ツールで以下のプロンプトを渡してサブ
 
 ### Phase 3: 最適化
 [Agent 3 の報告内容を要約]
+
+### Phase 4: Tailwind CSS レビュー
+[Agent 4 の報告内容を要約]
 ```
