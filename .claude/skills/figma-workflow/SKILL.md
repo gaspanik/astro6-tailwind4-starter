@@ -144,13 +144,13 @@ Phase 1 完了後、Agent ツールで以下のプロンプトを渡してサブ
 
 ### 3. 型チェックとエラーの解消
 ```bash
-pnpm astro check
+<pm> run astro check
 ```
 を実行して `.astro` ファイルの型エラーをすべて解消する。
 
 ### 4. コードスタイルの確認
 ```bash
-pnpm check
+<pm> run check
 ```
 を実行してBiomeのリント・フォーマットエラーを自動修正する（`.astro` ファイルはBiome対象外）。
 
@@ -198,7 +198,7 @@ Phase 2 完了後、Agent ツールで以下のプロンプトを渡してサブ
 
 ### 4. コードスタイルの最終確認
 ```bash
-pnpm astro check && pnpm check
+<pm> run astro check && <pm> run check
 ```
 を実行してエラーがないことを確認する。
 
