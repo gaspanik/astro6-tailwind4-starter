@@ -59,7 +59,7 @@ Replace `<pm>` with your package manager (`npm`, `yarn`, `pnpm`, `bun`, etc.).
 - 80-char line width, 2-space indent, LF line endings
 - `.astro` files are excluded from Biome — type-check with `<pm> run astro check`
 
-**Always run `<pm> run check` before finishing any code change.**
+**Always run both `<pm> run astro check` and `<pm> run check` before finishing any code change.**
 
 ## Tailwind v4 Rules
 
@@ -143,6 +143,16 @@ import { Camera } from '@lucide/astro';
 | `size` | `24` |
 | `color` | `currentColor` |
 | `stroke-width` | `2` |
+
+When a framework integration is added, install and use the matching Lucide package inside that framework's components:
+
+| Integration | Package | Use in |
+|---|---|---|
+| `@astrojs/react` | `lucide-react` | React components (`.tsx`); may also unify `.astro` imports |
+| `@astrojs/vue` | `@lucide/vue` | Vue components (`.vue`) |
+| `@astrojs/svelte` | `@lucide/svelte` | Svelte components (`.svelte`) |
+
+Never import `@lucide/astro` inside React/Vue/Svelte components — it only works in `.astro` files.
 
 ## Adding Dependencies
 

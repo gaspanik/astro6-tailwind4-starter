@@ -84,12 +84,22 @@ add the selector to `@layer base` or define a dedicated utility in `@theme` inst
   - **Semicolons:** Set to `asNeeded`.
   - **Indentation:** 2 spaces.
 - **Astro Files:** `.astro` files are excluded from Biome. Use `<pm> run astro check` for validation.
-- **Pre-commit:** Always run `<pm> run check` before finishing any code change.
+- **Pre-commit:** Always run both `<pm> run astro check` and `<pm> run check` before finishing any code change.
 
 ### Icons
 - Import icons from `@lucide/astro` (e.g., `import { Camera } from '@lucide/astro'`).
 - Props: `size` (default 24), `color` (default currentColor), `stroke-width` (default 2).
 - Use the `class` prop for Tailwind styling: `<Camera class="text-muted" />`.
+
+When a framework integration is added, install and use the matching Lucide package inside that framework's components:
+
+| Integration | Package | Use in |
+|---|---|---|
+| `@astrojs/react` | `lucide-react` | React components (`.tsx`); may also unify `.astro` imports |
+| `@astrojs/vue` | `@lucide/vue` | Vue components (`.vue`) |
+| `@astrojs/svelte` | `@lucide/svelte` | Svelte components (`.svelte`) |
+
+Never import `@lucide/astro` inside React/Vue/Svelte components — it only works in `.astro` files.
 
 ## Security & Supply Chain
 - **Scripts:** `ignore-scripts=true` is enabled in `.npmrc` to prevent untrusted postinstall scripts.

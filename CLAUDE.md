@@ -59,7 +59,7 @@ No ESLint or Prettier. JS/TS/JSON/CSS is managed by **Biome**. `.astro` files ar
 
 - Single quotes, semicolons `asNeeded`, trailing commas; JSX attributes use double quotes
 - 80-char line width, 2-space indent, LF line endings (`.editorconfig`)
-- Always run `<pm> run check` before finishing any code change
+- Always run both `<pm> run astro check` and `<pm> run check` before finishing any code change
 
 ## Icons
 
@@ -74,3 +74,13 @@ import { Camera } from '@lucide/astro';
 ```
 
 Props: `size` (default `24`), `color` (default `currentColor`), `stroke-width` (default `2`), `absoluteStrokeWidth`. Tailwind classes apply via the `class` prop.
+
+When a framework integration is added, install and use the matching Lucide package inside that framework's components:
+
+| Integration | Package | Use in |
+|---|---|---|
+| `@astrojs/react` | `lucide-react` | React components (`.tsx`); may also unify `.astro` imports |
+| `@astrojs/vue` | `@lucide/vue` | Vue components (`.vue`) |
+| `@astrojs/svelte` | `@lucide/svelte` | Svelte components (`.svelte`) |
+
+Never import `@lucide/astro` inside React/Vue/Svelte components — it only works in `.astro` files.
