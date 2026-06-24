@@ -16,14 +16,14 @@
     "check": "biome check --write"
   },
   "dependencies": {
-    "@lucide/astro": "^1.18.0",
+    "@lucide/astro": "^1.21.0",
     "@tailwindcss/vite": "^4.3.1",
     "astro": "^6.4.4",
     "tailwindcss": "^4.3.1"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
-    "@biomejs/biome": "2.5.0",
+    "@biomejs/biome": "2.5.1",
     "typescript": "^6.0.3"
   },
   "overrides": {
