@@ -1,99 +1,119 @@
 ---
 name: figma-workflow
 description: >-
-  Figma URL を受け取り、実装 → レビュー → 最適化 → Tailwindレビュー の4フェーズをサブエージェントで逐次実行するワークフロースキル（Astro向け）
+  Accepts a Figma URL and runs each phase — Implementation → Review → Optimization → Tailwind Review — as sequential sub-agents. Auto-detects project type (Astro / React / Vanilla) and branches accordingly.
 argument-hint: "<figma-url>"
 allowed-tools: Agent
 ---
 
-# Figma → Code ワークフロー（Astro）
+# Figma → Code Workflow (Auto-detected Environment)
 
-Figma URL を受き取り、**実装 → レビュー → 最適化 → Tailwindレビュー** の4フェーズをサブエージェントで逐次実行するワークフロースキルです。
+Accepts a Figma URL and runs **Implementation → Review → Optimization → Tailwind Review** as sequential sub-agents. Auto-detects the project type and branches accordingly.
 
-## 引数
+## Arguments
 
-`$ARGUMENTS` に Figma URL が渡されます。
+The Figma URL is passed via `$ARGUMENTS`.
 
-## 注意：大きなページの場合
+## Note: Large Pages
 
-縦に長いランディングページなど大きなフレームを1度に渡すとコンテキストが肥大化します。
-その場合は **セクション単位のフレーム**（Hero, Features, CTA など）に分けて、このワークフローを複数回実行してください。
-
-## 実行ルール
-
-- 各フェーズは **Agent ツール**でサブエージェントとして起動する
-- 必ず **Phase 1 → Phase 2 → Phase 3 → Phase 4** の順に実行する（並列不可）
-- 各エージェントの完了を確認してから次を起動する
-- 全フェーズ完了後、各エージェントの報告内容をまとめてユーザーに提示する
+For tall pages like landing pages, passing a single large frame can bloat the context. In that case, split the design into **individual section frames** (Hero, Features, CTA, etc.) and run this workflow multiple times.
 
 ---
 
-## Phase 1: 実装
+## Step 0: Environment Detection (run first)
 
-Agent ツールで以下のプロンプトを渡してサブエージェントを起動する。
+Run the following Node.js script to detect the project type and store it as `ENV` for all subsequent phases:
+
+```bash
+node -e "const fs=require('fs');const astro=['astro.config.ts','astro.config.mjs','astro.config.js','astro.config.cjs'].some(f=>fs.existsSync(f));if(astro){console.log('astro')}else if(fs.existsSync('package.json')){const p=JSON.parse(fs.readFileSync('package.json','utf8'));const d={...p.dependencies,...p.devDependencies};(d['react']||d['react-dom'])?console.log('react'):console.log('vanilla')}else{console.log('vanilla')}"
+```
+
+| ENV | Phases | Flow |
+|-----|--------|------|
+| `astro` | 4 | Implementation → Review → Optimization → Tailwind Review |
+| `react` | 4 | Implementation → Review → Optimization → Tailwind Review |
+| `vanilla` | 3 | Implementation → Review → Tailwind Review |
+
+---
+
+## Execution Rules
+
+- Launch each phase as a sub-agent using the **Agent tool**
+- Always run **Phase 1 → Phase 2 → Phase 3 (→ Phase 4)** in order (no parallel execution)
+- Confirm each agent has completed before launching the next
+- After all phases are complete, summarize each agent's report for the user
+- Replace `<pm>` in the prompts below with the project's package manager (`npm` / `yarn` / `pnpm`)
+
+---
+
+## Phase 1: Implementation
+
+Launch a sub-agent using the appropriate prompt for the ENV.
+
+### Astro Prompt
 
 ```
-以下のFigma URLのデザインを実装してください：$ARGUMENTS
+Implement the design from the following Figma URL: $ARGUMENTS
 
-## 手順
+## Steps
 
-### 0. 実装先ファイルの確認
+### 0. Confirm Target File
 
-`$ARGUMENTS` にファイル名（例: `about.astro`）が含まれていない場合、実装を開始する前にユーザーに確認する：
+If `$ARGUMENTS` does not include a filename (e.g. `about.astro`), confirm with the user before starting implementation:
 
-> 実装先のファイル名を教えてください（例: `src/pages/index.astro`, `src/components/Hero.astro`）
+> Please provide the target filename (e.g. `src/pages/index.astro`, `src/components/Hero.astro`)
 
-- `src/pages/` への実装（ページ）か `src/components/` への実装（コンポーネント）かも確認する
-- 既存ファイルへの追加か、新規ファイルの作成かも確認する
+- Also confirm whether this is a page (`src/pages/`) or a component (`src/components/`)
+- Also confirm whether to add to an existing file or create a new one
 
-### 1. デザイン情報の取得
-- `get_design_context` でデザインコンテキストとリファレンスコードを取得する
-- `get_variable_defs` でデザイントークン（色、スペーシング等）を取得する
-- ファイル中のアノテーションの内容を確認し、実装に必要な情報を把握する
+### 1. Fetch Design Information
+- Use `get_design_context` to fetch design context and reference code
+- Use `get_variable_defs` to fetch design tokens (colors, spacing, etc.)
+- Check any annotations in the file for implementation requirements
 
-### 2. 既存コードの確認
-- `src/components/` 内の既存コンポーネントを確認し、再利用できるものがないか調べる
-- `src/styles/global.css` の `@theme` ブロックで定義済みのトークンを確認する
+### 2. Review Existing Code
+- Review existing components in `src/components/` and check if any can be reused
+- Check already-defined tokens in the `@theme` block in `src/styles/global.css`
 
-### 3. 実装
-CLAUDE.md のガイドラインに厳密に従って実装すること：
+### 3. Implementation
+Follow the CLAUDE.md guidelines strictly:
 
-**Astro コンポーネント構造**
-- 新規コンポーネントは `src/components/` に配置（ファイル名はPascalCase、例: `HeroSection.astro`）
-- 新規ページは `src/pages/` に配置
-- `.astro` ファイルはフロントマター（`---`）でインポートとロジックを記述し、テンプレートにHTMLを書く
+**Astro Component Structure**
+- Place new components in `src/components/` (PascalCase filenames, e.g. `HeroSection.astro`)
+- Place new pages in `src/pages/`
+- In `.astro` files, write imports and logic in the frontmatter (`---`) section, and HTML in the template
 
-**スタイリング**
-- Tailwind CSS v4 構文を使用（`space-x/y-*` は使わず `gap-*` + flex/grid を使う）
-- クラスは `class` 属性に直接記述する（JSXの `className` は使わない）
-- グローバルスタイルの追加は `src/styles/global.css` に行う
+**Styling**
+- Use Tailwind CSS v4 syntax (use `gap-*` + flex/grid instead of `space-x/y-*`)
+- Write classes directly in the `class` attribute (do not use JSX `className`)
+- Add global styles to `src/styles/global.css`
 
-**アクセシビリティ**
-- セマンティックなHTMLタグを使用（`header`, `main`, `section`, `nav` 等）
-- `aria-label`, `aria-expanded` 等の適切なARIA属性を付与
-- 画像には意味のある `alt` テキストを設定
+**Accessibility**
+- Use semantic HTML tags (`header`, `main`, `section`, `nav`, etc.)
+- Add appropriate ARIA attributes (`aria-label`, `aria-expanded`, etc.)
+- Set meaningful `alt` text on images
 
-**デザイントークン**
-- Figmaから取得したトークンが `@theme` に未定義の場合、`src/styles/global.css` に追加する
-- 任意値（`w-[42px]`）は最終手段として使用し、複数箇所で使う場合は `@theme` に追加する
+**Design Tokens**
+- If tokens from Figma are not yet in `@theme`, add them to `src/styles/global.css`
+- Use arbitrary values (`w-[42px]`) as a last resort; if used in multiple places, add to `@theme`
 
-**アイコン**
-- `@lucide/astro` のアイコンをAstroコンポーネントとしてインポートして使用する
+**Icons**
+- Import and use icons from `@lucide/astro` as Astro components
   ```astro
   ---
   import { Camera } from '@lucide/astro';
   ---
   <Camera size={16} stroke-width={1} class="text-muted" />
   ```
-- Props: `size`（デフォルト `24`）、`color`（デフォルト `currentColor`）、`stroke-width`（デフォルト `2`）
+- Props: `size` (default `24`), `color` (default `currentColor`), `stroke-width` (default `2`)
 
-**画像アセット**
-- Figma MCP の画像URL（`https://www.figma.com/api/mcp/asset/...`）は **7日間で失効** するため、必ずローカルに保存する
-- `src/assets/images/` に `webp` 形式でダウンロードし、内容を表す kebab-case で命名する
+**Image Assets**
+- Figma MCP image URLs (`https://www.figma.com/api/mcp/asset/...`) **expire after 7 days** — always save them locally
+- Download to `src/assets/images/` in `webp` format, using kebab-case names that describe the content
   ```bash
   curl -s -o src/assets/images/<name>.webp "<figma-asset-url>"
   ```
-- コード内では `astro:assets` の `<Image />` コンポーネントで参照する（直接URLは埋め込まない）：
+- Reference via the `<Image />` component from `astro:assets` (never embed URLs directly):
   ```astro
   ---
   import { Image } from 'astro:assets';
@@ -102,148 +122,489 @@ CLAUDE.md のガイドラインに厳密に従って実装すること：
   <Image src={heroImage} alt="..." />
   ```
 
-### 4. 完了確認
-実装完了後、以下を確認してメッセージに含める：
-- 作成・変更したファイルの一覧
-- 新たに `@theme` に追加したトークン（あれば）
-- 既存コンポーネントの再利用状況
-- ダウンロードした画像ファイルの一覧（`src/assets/images/` に保存したもの）
-- アノテーションで指定された要件をすべて満たしているか
+### 4. Completion Check
+After implementation, confirm the following and include in your message:
+- List of files created or modified
+- Tokens newly added to `@theme` (if any)
+- Status of existing component reuse
+- List of downloaded image files (saved in `src/assets/images/`)
+- Whether all requirements specified in annotations are met
 ```
 
 ---
 
-## Phase 2: レビューと修正
-
-Phase 1 完了後、Agent ツールで以下のプロンプトを渡してサブエージェントを起動する。
+### React Prompt
 
 ```
-以下のFigma URLのデザインと実装を比較してレビューしてください：$ARGUMENTS
+Implement the design from the following Figma URL: $ARGUMENTS
 
-## 手順
+## Steps
 
-### 1. Figmaのスクリーンショット取得
-- `get_screenshot` で対象ノードのスクリーンショットを取得する
-- スクリーンショットを参照しながら実装との視覚的差異を特定する
+### 0. Confirm Target File
 
-### 2. 視覚的差異の確認と修正
-スクリーンショットと実装を比較して以下を確認・修正する：
+If `$ARGUMENTS` does not include a filename, confirm with the user before starting implementation:
 
-**レイアウト**
-- 要素の配置・整列（flex/grid の方向、justify/align の設定）
-- スペーシング（padding, margin, gap の値）
-- サイズ（幅・高さ）
+> Please provide the target filename (e.g. `src/pages/About.tsx`, `src/components/Hero.tsx`)
 
-**スタイル**
-- 色（`@theme` トークンまたはTailwindのカラーパレット）
-- タイポグラフィ（フォントサイズ、ウェイト、行間）
-- 角丸（border-radius）、シャドウ（box-shadow）
-- ボーダー（色・太さ・スタイル）
+- Also confirm whether to add to an existing file or create a new one
 
-**レスポンシブ**
-- モバイル（`sm:`）・タブレット（`md:`）・デスクトップ（`lg:`）での見た目
+### 1. Fetch Design Information
+- Use `get_design_context` to fetch design context and reference code
+- Use `get_variable_defs` to fetch design tokens (colors, spacing, etc.)
+- Check any annotations in the file for implementation requirements
 
-### 3. 型チェックとエラーの解消
+### 2. Review Existing Code
+- Review existing components in `src/components/` and check if any can be reused
+- Check already-defined tokens in the `@theme` block in `src/index.css`
+- Always use the `cn()` function from `src/lib/utils.ts`
+
+### 3. Implementation
+Follow the CLAUDE.md guidelines strictly:
+
+**Component Placement**
+- Place new components in `src/components/`
+- Use PascalCase filenames (e.g. `HeroSection.tsx`)
+
+**Styling**
+- Use Tailwind CSS v4 syntax (use `gap-*` + flex/grid instead of `space-x/y-*`)
+- Always use `cn()` for class composition (`import { cn } from '@/lib/utils'`)
+- Consider CVA (`class-variance-authority`) for components with multiple variants
+- Consider `tailwind-variants` for styles spanning multiple child elements
+- Use `lucide-react` for icons (inline: `w-4 h-4`, headings: `w-6 h-6`)
+
+**TypeScript**
+- Do not write `import React from 'react'` (using react-jsx transform)
+- Use named imports for hooks: `import { useState } from 'react'`
+- Always explicitly define props with TypeScript interfaces
+- Extend existing HTML elements using `ComponentProps<'button'>` etc.
+
+**Accessibility**
+- Use semantic HTML tags (`header`, `main`, `section`, `nav`, etc.)
+- Add appropriate ARIA attributes (`aria-label`, `aria-expanded`, `aria-controls`, etc.)
+- Set meaningful `alt` text on images
+
+**Design Tokens**
+- If tokens from Figma are not yet in `@theme`, add them to `src/index.css`
+- Use arbitrary values (`w-[42px]`) as a last resort; if used in multiple places, add to `@theme`
+
+**Image Assets**
+- Figma MCP image URLs (`https://www.figma.com/api/mcp/asset/...`) **expire after 7 days** — always save them locally
+- Download to `src/assets/images/` in `webp` format, using kebab-case names that describe the content
+  ```bash
+  curl -s -o src/assets/images/<name>.webp "<figma-asset-url>"
+  ```
+- Reference via import (never embed URLs directly):
+  ```tsx
+  import heroImage from '@/assets/images/hero.webp'
+  <img src={heroImage} alt="..." />
+  ```
+
+### 4. Completion Check
+After implementation, confirm the following and include in your message:
+- List of files created or modified
+- Tokens newly added to `@theme` (if any)
+- Status of existing component reuse
+- List of downloaded image files (saved in `src/assets/images/`)
+- Whether all requirements specified in annotations are met
+```
+
+---
+
+### Vanilla Prompt
+
+```
+Implement the design from the following Figma URL: $ARGUMENTS
+
+## Steps
+
+### 0. Confirm Target File
+
+If `$ARGUMENTS` does not include a filename (e.g. `about.html`), confirm with the user before starting implementation:
+
+> Please provide the target HTML filename (e.g. `index.html`, `about.html`)
+
+- Also confirm whether to implement in an existing file or create a new one
+- For a new file, create it using the template from CLAUDE.md's "HTML Page Requirements"
+
+### 1. Fetch Design Information
+- Use `get_design_context` to fetch design context and reference code
+- Use `get_variable_defs` to fetch design tokens (colors, spacing, etc.)
+- Check any annotations in the file for implementation requirements
+
+### 2. Review Existing Code
+- Check already-defined tokens in the `@theme` block in `src/style.css`
+- Check the Lucide icons already registered in `src/main.ts`
+
+### 3. Implementation
+Follow the CLAUDE.md guidelines strictly:
+
+**HTML Structure**
+- Write markup directly inside `<body>` of the target page
+- Use semantic HTML tags (`header`, `main`, `footer`, `section`, `nav`, etc.)
+- Set meaningful `alt` text on images
+
+**Styling**
+- Use Tailwind CSS v4 syntax (use `gap-*` + flex/grid instead of `space-x/y-*`)
+- Write classes directly in the HTML `class` attribute
+- Do not use CSS modules or external CSS files
+
+**Design Tokens**
+- If tokens from Figma are not yet in `@theme`, add them to `src/style.css`
+- Use arbitrary values (`w-[42px]`) as a last resort; if used in multiple places, add to `@theme`
+
+**Icons**
+- Use Lucide for icons
+- Import the icon into `src/main.ts` and register it with `createIcons()`:
+  ```typescript
+  import { createIcons, IconName } from 'lucide'
+  createIcons({ icons: { IconName } })
+  ```
+- Use kebab-case in HTML: `<i data-lucide="icon-name"></i>`
+
+**Image Assets**
+- Figma MCP image URLs (`https://www.figma.com/api/mcp/asset/...`) **expire after 7 days** — always save them locally
+- Download to `public/images/` in `webp` format, using kebab-case names that describe the content
+  ```bash
+  curl -s -o public/images/<name>.webp "<figma-asset-url>"
+  ```
+- Reference via root-relative path (never embed URLs directly):
+  ```html
+  <img src="/images/hero.webp" alt="..." />
+  ```
+
+### 4. Completion Check
+After implementation, confirm the following and include in your message:
+- List of files created or modified
+- Tokens newly added to `@theme` (if any)
+- Lucide icons added to `src/main.ts` (if any)
+- List of downloaded image files (saved in `public/images/`)
+- Whether all requirements specified in annotations are met
+```
+
+---
+
+## Phase 2: Review and Fix
+
+Launch a sub-agent using the appropriate prompt for the ENV.
+
+### Astro Prompt
+
+```
+Review and compare the design from the following Figma URL with the implementation: $ARGUMENTS
+
+## Steps
+
+### 1. Fetch Figma Screenshot
+- Use `get_screenshot` to take a screenshot of the target node
+- Use the screenshot to identify visual differences from the implementation
+
+### 2. Identify and Fix Visual Differences
+Compare the screenshot with the implementation and check/fix the following:
+
+**Layout**
+- Element positioning and alignment (flex/grid direction, justify/align settings)
+- Spacing (padding, margin, gap values)
+- Sizes (width, height)
+
+**Styles**
+- Colors (`@theme` tokens or Tailwind color palette)
+- Typography (font size, weight, line height)
+- Border radius, box shadow
+- Borders (color, width, style)
+
+**Responsive**
+- Appearance at mobile (`sm:`), tablet (`md:`), and desktop (`lg:`)
+
+### 3. Resolve Type Check Errors
+Run:
 ```bash
 <pm> run astro check
 ```
-を実行して `.astro` ファイルの型エラーをすべて解消する。
+and resolve all type errors in `.astro` files.
 
-### 4. コードスタイルの確認
+### 4. Code Style Check
+Run:
 ```bash
 <pm> run check
 ```
-を実行してBiomeのリント・フォーマットエラーを自動修正する（`.astro` ファイルはBiome対象外）。
+to auto-fix Biome lint and format errors (`.astro` files are excluded from Biome).
 
-### 5. アクセシビリティの確認
-- キーボードナビゲーションが機能するか
-- `aria-label` 等のARIA属性が適切に設定されているか
-- 色コントラストがWCAG AA基準（4.5:1）を満たしているか
-- 画像に意味のある `alt` テキストがあるか
+### 5. Accessibility Check
+- Does keyboard navigation work?
+- Are ARIA attributes (`aria-label`, etc.) set appropriately?
+- Does color contrast meet WCAG AA (4.5:1)?
+- Do images have meaningful `alt` text?
 
-### 6. レビュー結果の報告
-修正完了後、以下をまとめて報告する：
-- 視覚的差異として修正した箇所
-- 型エラー・コードスタイルの修正内容（あれば）
-- アクセシビリティの改善点（あれば）
-- 残課題があれば明記する
+### 6. Review Report
+After all fixes, summarize:
+- Visual differences that were fixed
+- Type error and code style fixes (if any)
+- Accessibility improvements (if any)
+- Remaining issues (if any)
 ```
 
 ---
 
-## Phase 3: 最適化
-
-Phase 2 完了後、Agent ツールで以下のプロンプトを渡してサブエージェントを起動する。
+### React Prompt
 
 ```
-`src/components/` 内の実装済みコンポーネントをリファクタリングして、再利用性と保守性を高めてください。
+Review and compare the design from the following Figma URL with the implementation: $ARGUMENTS
 
-## 手順
+## Steps
 
-### 1. 現状の把握
-`src/components/` および `src/pages/` 内のファイルをすべて確認して以下を特定する：
-- 重複しているマークアップやスタイル
-- ハードコードされた値（色、サイズ等）
-- コンポーネントとして切り出せるまとまり
+### 1. Fetch Figma Screenshot
+- Use `get_screenshot` to take a screenshot of the target node
+- Use the screenshot to identify visual differences from the implementation
 
-### 2. コンポーネントの整理
-- 同じマークアップが2箇所以上で使われていたらコンポーネント化を検討する
-- ページから適切な粒度のコンポーネントを切り出し `src/components/` に配置する
-- Astro の `<slot />` を活用して柔軟なコンポーネントを設計する
-- ただし過度な抽象化は避ける（DRYより明快さを優先）
+### 2. Identify and Fix Visual Differences
+Compare the screenshot with the implementation and check/fix the following:
 
-### 3. デザイントークンの整理
-- ハードコードされた色・スペーシング値を `src/styles/global.css` の `@theme` ブロックに移動する
-- 任意値（`w-[42px]`）を複数箇所で使っている場合はトークン化する
-- トークン名はセマンティックに命名する（`--color-brand-primary` 等）
+**Layout**
+- Element positioning and alignment (flex/grid direction, justify/align settings)
+- Spacing (padding, margin, gap values)
+- Sizes (width, height)
 
-### 4. コードスタイルの最終確認
+**Styles**
+- Colors (`@theme` tokens or Tailwind color palette)
+- Typography (font size, weight, line height)
+- Border radius, box shadow
+- Borders (color, width, style)
+
+**Responsive**
+- Appearance at mobile (`sm:`), tablet (`md:`), and desktop (`lg:`)
+
+### 3. Resolve TypeScript Errors and Warnings
+Run:
+```bash
+<pm> run build
+```
+and resolve all TypeScript errors and warnings.
+
+Common issues:
+- `noUnusedVariables`: remove unused variables and imports
+- `noExplicitAny`: replace `any` with specific types
+- `useExhaustiveDependencies`: fix dependency arrays in `useEffect` etc.
+
+### 4. Code Style Check
+Run:
+```bash
+<pm> run check
+```
+to auto-fix Biome lint and format errors.
+
+### 5. Accessibility Check
+- Does keyboard navigation work?
+- Are ARIA attributes (`aria-label`, `aria-expanded`, `aria-controls`, etc.) set appropriately?
+- Does color contrast meet WCAG AA (4.5:1)?
+- Do images have meaningful `alt` text?
+
+### 6. Review Report
+After all fixes, summarize:
+- Visual differences that were fixed
+- TypeScript error and warning fixes (if any)
+- Accessibility improvements (if any)
+- Remaining issues (if any)
+```
+
+---
+
+### Vanilla Prompt
+
+```
+Review and compare the design from the following Figma URL with the implementation: $ARGUMENTS
+
+## Steps
+
+### 1. Fetch Figma Screenshot
+- Use `get_screenshot` to take a screenshot of the target node
+- Use the screenshot to identify visual differences from the implementation
+
+### 2. Identify and Fix Visual Differences
+Compare the screenshot with the implementation and check/fix the following:
+
+**Layout**
+- Element positioning and alignment (flex/grid direction, justify/align settings)
+- Spacing (padding, margin, gap values)
+- Sizes (width, height)
+
+**Styles**
+- Colors (`@theme` tokens or Tailwind color palette)
+- Typography (font size, weight, line height)
+- Border radius, box shadow
+- Borders (color, width, style)
+
+**Responsive**
+- Appearance at mobile (`sm:`), tablet (`md:`), and desktop (`lg:`)
+
+### 3. Resolve TypeScript Errors
+Run:
+```bash
+<pm> run build
+```
+and resolve all TypeScript errors.
+
+Common issues:
+- `noUnusedLocals` / `noUnusedParameters`: remove unused variables and imports
+
+### 4. Accessibility Check
+- Are semantic HTML tags used (`header`, `main`, `nav`, etc.)?
+- Do images have meaningful `alt` text?
+- Does color contrast meet WCAG AA (4.5:1)?
+
+### 5. Review Report
+After all fixes, summarize:
+- Visual differences that were fixed
+- TypeScript error fixes (if any)
+- Accessibility improvements (if any)
+- Remaining issues (if any)
+```
+
+---
+
+## Phase 3: Optimization (Astro / React only)
+
+Skip this phase if `ENV = vanilla` and proceed to Tailwind Review.
+
+### Astro Prompt
+
+```
+Refactor the implemented components in `src/components/` to improve reusability and maintainability.
+
+## Steps
+
+### 1. Assess Current State
+Review all files in `src/components/` and `src/pages/` and identify:
+- Duplicated markup or styles
+- Hardcoded values (colors, sizes, etc.)
+- Groupings that could be extracted as components
+
+### 2. Organize Components
+- Consider componentizing markup that appears in 2 or more places
+- Extract components of appropriate granularity from pages into `src/components/`
+- Use Astro's `<slot />` to design flexible components
+- Avoid over-abstraction (clarity over DRY)
+
+### 3. Organize Design Tokens
+- Move hardcoded color and spacing values to the `@theme` block in `src/styles/global.css`
+- Tokenize arbitrary values (`w-[42px]`) used in multiple places
+- Use semantic token names (e.g. `--color-brand-primary`)
+
+### 4. Final Code Style Check
+Run:
 ```bash
 <pm> run astro check && <pm> run check
 ```
-を実行してエラーがないことを確認する。
+and confirm there are no errors.
 
-### 5. 最適化結果の報告
-以下をまとめて報告する：
-- リファクタリングしたファイルと変更内容
-- `@theme` に追加・整理したトークン
-- 新たに作成したコンポーネント（あれば）
+### 5. Optimization Report
+Summarize:
+- Files refactored and what changed
+- Tokens added or reorganized in `@theme`
+- New components created (if any)
 ```
 
 ---
 
-## Phase 4: Tailwind CSS レビュー
-
-Phase 3 完了後、Agent ツールで以下のプロンプトを渡してサブエージェントを起動する。
+### React Prompt
 
 ```
-プロジェクトのTailwind CSSコードをレビューし、最適化してください。
+Refactor the implemented components in `src/components/` to improve reusability and maintainability.
 
-`.claude/skills/tailwind-review/SKILL.md` を Read ツールで直接読み込み、記載の手順に従って実行してください。
+## Steps
 
-修正はすべて確認なしで自動適用してください（パイプライン内での実行のため）。
+### 1. Assess Current State
+Review all files in `src/components/` and identify:
+- Duplicated styles or logic
+- Hardcoded values (colors, sizes, etc.)
+- Opportunities to migrate to better component patterns
 
-> **Note:** Skill ツールで `tailwind-review` を呼び出せない場合（CWD不一致など）は、`.claude/skills/tailwind-review/SKILL.md` を直接読んで手順に従うこと。
+### 2. Optimize Component Patterns
+Per the "Component Patterns" section of CLAUDE.md, choose the best approach for each component:
+
+**cn function** — simple components with few conditional classes
+**CVA (class-variance-authority)** — single-element components with multiple variants (buttons, badges, etc.)
+**tailwind-variants** — components with variants spanning multiple child elements (cards, forms, etc.)
+
+### 3. Organize Design Tokens
+- Move hardcoded color and spacing values to the `@theme` block in `src/index.css`
+- Tokenize arbitrary values (`w-[42px]`) used in multiple places
+- Use semantic token names (e.g. `--color-brand-primary`)
+
+### 4. Extract Common Patterns
+- Consider creating a shared component when the same style combination is used in 3+ places
+- Avoid over-abstraction (clarity over DRY)
+
+### 5. Strengthen Type Safety
+- Eliminate all `any` types
+- Use `ComponentProps<'element'>` to inherit HTML attributes
+- Accept a `className` prop and merge with `cn()` to allow external overrides
+
+### 6. Final Code Style Check
+Run:
+```bash
+<pm> run check
+```
+to confirm compliance with Biome rules.
+
+### 7. Optimization Report
+Summarize:
+- Components refactored and what changed
+- Tokens added or reorganized in `@theme`
+- New shared components created (if any)
+- Component patterns selected and why
 ```
 
 ---
 
-## 最終報告
+## Phase 4 (Astro / React) / Phase 3 (Vanilla): Tailwind CSS Review
 
-4フェーズすべて完了後、以下の形式でまとめて報告する：
+Common to all environments. Launch a sub-agent via the Agent tool with the following prompt:
 
 ```
-## Figma ワークフロー完了
+Review and optimize the Tailwind CSS code in the project.
 
-### Phase 1: 実装
-[Agent 1 の報告内容を要約]
+Load `.claude/skills/tailwind-review/SKILL.md` directly with the Read tool and follow its instructions.
 
-### Phase 2: レビュー
-[Agent 2 の報告内容を要約]
+Apply all fixes automatically without confirmation (running inside a pipeline).
 
-### Phase 3: 最適化
-[Agent 3 の報告内容を要約]
+> **Note:** If the Skill tool cannot invoke `tailwind-review` (e.g. CWD mismatch), resolve the path with `node -e "const path=require('path'),os=require('os');console.log(path.join(os.homedir(),'.claude','skills','tailwind-review','SKILL.md'))"` and read it directly with the Read tool.
+```
 
-### Phase 4: Tailwind CSS レビュー
-[Agent 4 の報告内容を要約]
+---
+
+## Final Report
+
+After all phases complete, report in the format appropriate for the ENV.
+
+**Astro / React (4 phases)**
+
+```
+## Figma Workflow Complete
+
+### Phase 1: Implementation
+[Summary of Agent 1's report]
+
+### Phase 2: Review
+[Summary of Agent 2's report]
+
+### Phase 3: Optimization
+[Summary of Agent 3's report]
+
+### Phase 4: Tailwind CSS Review
+[Summary of Agent 4's report]
+```
+
+**Vanilla (3 phases)**
+
+```
+## Figma Workflow Complete
+
+### Phase 1: Implementation
+[Summary of Agent 1's report]
+
+### Phase 2: Review
+[Summary of Agent 2's report]
+
+### Phase 3: Tailwind CSS Review
+[Summary of Agent 3's report]
 ```
