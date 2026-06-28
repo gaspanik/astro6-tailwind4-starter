@@ -97,6 +97,7 @@ Always run `<pm> run check` before committing.
 
 ## Security
 
-`.npmrc` sets `min-release-age=3`, blocking packages published fewer than 3 days ago (supported by npm v11+ and pnpm).
+`.npmrc` sets `min-release-age=1`, blocking packages published fewer than 1 day ago (supported by npm v11+ and pnpm).
+`pnpm-workspace.yaml` sets `minimumReleaseAge: 1440`, blocking packages published fewer than 24 hours ago. This prevents accidental installs of malicious packages.
 
 `pnpm-workspace.yaml` lists packages allowed to run build scripts (`allowBuilds`).
